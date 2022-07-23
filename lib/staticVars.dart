@@ -26,13 +26,25 @@ final List<String> burgerImgs = const [
   'https://i.pinimg.com/736x/d6/aa/5b/d6aa5ba856b2d530026aeff56d275cd5.jpg',
 ];
 
-final List<String> sliderImages = const [
+  final List<String> sliderImages = const [
      'https://www.tasteofhome.com/wp-content/uploads/2018/06/AL-Jacks.jpg',
      'https://annabaa.org/aarticles/fileM/23/5d7dbadfdafa3.jpg',
      'https://static.euronews.com/articles/stories/04/46/65/60/1440x810_cmsv2_015447aa-8a70-5c64-97dd-1cd2777ceb56-4466560.jpg',
      'https://ahwal.media/wp-content/uploads/2021/01/fast-food.jpg',
      'https://www.gannett-cdn.com/media/2019/08/05/USATODAY/usatsports/247WallSt.com-247WS-565444-fast-food.jpg?auto=webp&crop=1365,768,x0,y0&format=pjpg&width=1200',
   ];
+
+  final List<String> breadM = const ['assets/images/BMT.png' ,'assets/images/BMB.png'];
+  final List<String> breadB = const ['assets/images/BBT.png' ,'assets/images/BBB.png'];
+  final List<String> breadG = const ['assets/images/BGT.png' ,'assets/images/BGB.png'];
+  final List<String> breadO = const ['assets/images/BOT.png' ,'assets/images/BOB.png'];
+
+  final Map<String ,dynamic> burgerComp = const {
+    'assets/images/1-cheese.png' :-20,
+    'assets/images/2-burger.png' :20,
+    'assets/images/3-tomatoRow.png' :-20,
+    'assets/images/5-lettuce.png' :20,
+  };
 
 
 }

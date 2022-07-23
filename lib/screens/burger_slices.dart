@@ -1,28 +1,19 @@
+import 'dart:developer' as dev;
 import 'dart:math';
 
+import 'package:animation_app/staticVars.dart';
 import 'package:flutter/material.dart';
 
-class BurgerComp extends StatefulWidget {
+class BurgerSlices extends StatefulWidget {
   @override
-  _BurgerCompState createState() => _BurgerCompState();
+  _BurgerSlicesState createState() => _BurgerSlicesState();
 }
 
-class _BurgerCompState extends State<BurgerComp> {
+class _BurgerSlicesState extends State<BurgerSlices> with TickerProviderStateMixin{
 
-  List<String> chosenBread = breadM;
+  List<String> chosenBread = staticVars.breadM;
   List<bool> chosenBreadBorder = [false ,false ,true ,false];
 
-  static List<String> breadM = ['assets/images/BMT.png' ,'assets/images/BMB.png'];
-  static List<String> breadB = ['assets/images/BBT.png' ,'assets/images/BBB.png'];
-  static List<String> breadG = ['assets/images/BGT.png' ,'assets/images/BGB.png'];
-  static List<String> breadO = ['assets/images/BOT.png' ,'assets/images/BOB.png'];
-
-  Map<String ,dynamic> burgerComp = {
-    'assets/images/1-cheese.png' :-20,
-    'assets/images/2-burger.png' :20,
-    'assets/images/3-tomatoRow.png' :-20,
-    'assets/images/5-lettuce.png' :20,
-  };
   static double ratioHeight = 0.8;
   double sHeight ()=>MediaQuery.of(context).size.height;
   double sWidth ()=>MediaQuery.of(context).size.width;
@@ -31,6 +22,56 @@ class _BurgerCompState extends State<BurgerComp> {
   bool pushPage = true;
 
 
+  AnimationController curveCtrl;
+  // AnimationController optionRowCtrl;
+  Animation curveAnimation;
+  Animation optionRowAnimation;
+
+  void disposeFunc() {
+    dev.log('dispose...............................................');
+    curveCtrl.dispose();
+    //optionRowCtrl.dispose();
+  }
+  initStateFunc() {
+    Future.delayed(Duration(milliseconds: 100), () {
+      curveCtrl =  AnimationController(vsync: this, duration: const Duration(milliseconds: 700));
+      //optionRowCtrl =  AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
+      curveAnimation = Tween<double>(
+          begin: bgHigh(context)*.8,
+          end: bgHigh(context)
+        ).animate(curveCtrl);
+      optionRowAnimation = Tween<double>(
+          begin: sHeight(),
+          end: bgHigh(context)
+        ).animate(curveCtrl..duration = Duration(milliseconds: 1500));
+      curveCtrl.addListener(() {
+        setState(() {});
+      });
+      // optionRowCtrl.addListener(() {
+      //   setState(() {});
+      // });
+      curveCtrl.forward();
+      // optionRowCtrl.forward();
+    });
+  }
+  
+  @override
+  void dispose() {
+    if(mounted){
+      disposeFunc();
+      dev.log('d...............................................');
+    }
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    initStateFunc();
+  super.initState();
+  }
+
+  bgHigh(BuildContext context)=>
+    sHeight() *ratioHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +79,8 @@ class _BurgerCompState extends State<BurgerComp> {
       child: Scaffold(
         body: NotificationListener(
           onNotification: (t) {
-            print(homeScrollController.offset);
-            if(homeScrollController.offset >= 60  && pushPage==true){
+            // print(homeScrollController.offset);
+            if(homeScrollController.offset >= 90  && pushPage==true){
               Navigator.of(context).pop();
               pushPage = false;
             }
@@ -55,7 +96,7 @@ class _BurgerCompState extends State<BurgerComp> {
                   Hero(
                     tag: 'bgTag',
                     child: Container(
-                      height: sHeight() *ratioHeight,
+                      height: curveAnimation?.value ?? bgHigh(context),
                       width: sWidth(),
                       decoration: BoxDecoration(
                           image: DecorationImage(
@@ -67,20 +108,20 @@ class _BurgerCompState extends State<BurgerComp> {
                   ),
     
                   Container(
-                    height: sHeight() *ratioHeight,
+                    height: curveAnimation?.value ?? bgHigh(context),
                     width: sWidth(),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: List.generate(burgerComp.length+chosenBread.length, (index){
+                      children: List.generate(staticVars.burgerComp.length+chosenBread.length, (index){
     
-                        return index==0 || index==(burgerComp.length+chosenBread.length)-1 ?
+                        return index==0 || index==(staticVars.burgerComp.length+chosenBread.length)-1 ?
                         Transform.rotate(
                           angle: index==0 ? 20 *pi/180 :-20 *pi/180,
                           child: AnimatedSwitcher(
                             duration: Duration(milliseconds: 5000),
                             key: index==0 ? ValueKey(0) : ValueKey(1),
                             child: index==0 ?Container(
-                              height: (sHeight()*ratioHeight) / (burgerComp.length+chosenBread.length),
+                              height: (curveAnimation?.value ?? bgHigh(context)) / (staticVars.burgerComp.length+chosenBread.length),
                               width: sWidth() *0.4,
                               decoration: BoxDecoration(
                                   image: DecorationImage(
@@ -90,7 +131,7 @@ class _BurgerCompState extends State<BurgerComp> {
                               ),
                             ):
                             Container(
-                              height: (sHeight()*ratioHeight) / (burgerComp.length+chosenBread.length),
+                              height: (curveAnimation?.value ?? bgHigh(context)) / (staticVars.burgerComp.length+chosenBread.length),
                               width: sWidth() *0.4,
                               decoration: BoxDecoration(
                                   image: DecorationImage(
@@ -102,23 +143,26 @@ class _BurgerCompState extends State<BurgerComp> {
                           ),
                         )
     
-                            : Hero(
-                            tag: index == 2
-                              ? 'main_burger_tag'
-                              : 'main_burger_tag_$index',
-                            child: Transform.rotate(
-                                  angle: burgerComp.values.toList()[index-1] *pi/180,
-                                  child: Container(
-                                    height: (sHeight()*ratioHeight) / (burgerComp.length+chosenBread.length),
-                                    width: sWidth() *0.4,
-                                    decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            image: AssetImage( burgerComp.keys.toList()[index-1] ),
-                                            fit: BoxFit.contain
-                                        )
+                            : SizedBox(
+                              height: (curveAnimation?.value ?? bgHigh(context)) / (staticVars.burgerComp.length+chosenBread.length),
+                              child: Hero(
+                              tag: index == 2
+                                ? 'main_burger_tag'
+                                : 'main_burger_tag_$index',
+                              child: Transform.rotate(
+                                    angle: staticVars.burgerComp.values.toList()[index-1] *pi/180,
+                                    child: Container(
+                                      height: (curveAnimation?.value ?? bgHigh(context)) / (staticVars.burgerComp.length+chosenBread.length),
+                                      width: sWidth() *0.4,
+                                      decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                              image: AssetImage( staticVars.burgerComp.keys.toList()[index-1] ),
+                                              fit: BoxFit.contain
+                                          )
+                                      ),
                                     ),
-                                  ),
-                                                  ),
+                                                    ),
+                              ),
                             );
     
                       }),
@@ -127,7 +171,7 @@ class _BurgerCompState extends State<BurgerComp> {
     
     
                   Positioned(
-                    top: sHeight() *ratioHeight,
+                    top: (optionRowAnimation?.value ?? bgHigh(context)),
                     child: Container(
                       width: sWidth(),
                       height: MediaQuery.of(context).size.width /3,
@@ -140,7 +184,7 @@ class _BurgerCompState extends State<BurgerComp> {
                           child: BurgerOption(
                               img: 'assets/images/BB.png',
                               setFunc: () => setState(() {
-                                chosenBread = breadB;
+                                chosenBread = staticVars.breadB;
                                 chosenBreadBorder = [true ,false ,false ,false];
                               }),
                               selected: chosenBreadBorder[0] == true),
@@ -148,14 +192,14 @@ class _BurgerCompState extends State<BurgerComp> {
                         BurgerOption(
                             img: 'assets/images/BG.png',
                             setFunc: () => setState(() {
-                              chosenBread = breadG;
+                              chosenBread = staticVars.breadG;
                               chosenBreadBorder = [false ,true ,false ,false];
                             }),
                             selected: chosenBreadBorder[1] == true),
                         BurgerOption(
                             img: 'assets/images/BM.png',
                             setFunc: () => setState((){
-                              chosenBread = breadM;
+                              chosenBread = staticVars.breadM;
                               chosenBreadBorder = [false ,false ,true ,false];
                             }),
                             selected: chosenBreadBorder[2] == true),
@@ -164,7 +208,7 @@ class _BurgerCompState extends State<BurgerComp> {
                             child: BurgerOption(
                                 img: 'assets/images/BO.png',
                                 setFunc: () => setState(() {
-                                  chosenBread = breadO;
+                                  chosenBread = staticVars.breadO;
                                   chosenBreadBorder = [false ,false ,false ,true];
                                 }),
                                 selected: chosenBreadBorder[3] == true)),
